@@ -1,6 +1,9 @@
 import * as  express from "express"
 import { BotFrameworkAdapter } from 'botbuilder'
-import { BotActivityHandler } from '../infrastructure/botActivityHandler'
+import { BotActivityHandler } from '../infrastructure/BotActivityHandler'
+import { MemoryStore } from "../infrastructure/MemoryStore";
+import { TeamsConversationRosterProvider } from "../infrastructure/TeamsConversationRosterProvider";
+import { PollService } from "../domain";
 
 require('dotenv').config();
 
@@ -30,8 +33,12 @@ adapter.onTurnError = async (context, error) => {
     await context.sendActivity('To continue to run this bot, please fix the bot source code.');
 };
 
+const store = new MemoryStore()
+const rosterProvider = new TeamsConversationRosterProvider()
+const pollService = new PollService({ pollStore: store, rosterProvider })
+
 // Create bot handlers
-const botActivityHandler = new BotActivityHandler();
+const botActivityHandler = new BotActivityHandler({ rosterProvider, pollService });
 
 // Create HTTP server.
 const server = express();

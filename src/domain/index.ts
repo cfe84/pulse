@@ -2,6 +2,7 @@ import { AggregatedAnswer } from "./AggregatedAnswer";
 import { AggregatedAnswers } from "./AggregatedAnswers";
 import { Answer } from "./Answer";
 import { IPollStore } from "./IPollStore";
+import { IQuestionStore } from "./IQuestionStore";
 import { IRosterProvider } from "./IRosterProvider";
 import { Participant } from "./Participant";
 import { Poll } from "./Poll";
@@ -16,8 +17,9 @@ export {
   Answer,
   Question,
   Roster,
+  AggregatedAnswer,
+  AggregatedAnswers,
   IRosterProvider,
   IPollStore,
-  AggregatedAnswer,
-  AggregatedAnswers
+  IQuestionStore,
 }

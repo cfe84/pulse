@@ -1,7 +1,6 @@
-import { Answer, Participant, Poll, PollService, Question } from "../src/domain"
+import { Participant, Poll, PollService, Question } from "../src/domain"
 import * as should from "should"
 import * as td from "testdouble"
-import { v4 as uuidv4 } from "uuid"
 import { POLLSERVICE_ERROR } from "../src/domain/PollService"
 
 describe("PollService", () => {
@@ -25,7 +24,6 @@ describe("PollService", () => {
     answers: [],
     createdTimestamp: Date.now(),
     id: pollId,
-    contextId: contextId,
     question: question,
     respondentIds: [],
     participants
@@ -60,7 +58,7 @@ describe("PollService", () => {
     it("creates an empty set of answers", () => should(poll.answers).be.empty())
     it("creates an empty set of respondents", () => should(poll.respondentIds).be.empty())
     it("creates a non-empty poll id", () => should(poll.id.length).greaterThan(0))
-    it("saves context id", () => should(poll.contextId).eql(contextId))
+    // it("saves context id", () => should(poll.contextId).eql(contextId))
     it("saves participants", () => { should(poll.participants).eql(participants) })
     it("saves poll", () => td.verify(deps.pollStore.savePollAsync(poll)))
   })

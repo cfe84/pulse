@@ -14,13 +14,12 @@ export const POLLSERVICE_ERROR = {
 export class PollService {
   constructor(private deps: PollServiceDependencies) { }
 
-  async createPollAsync(contextId: string, question: Question): Promise<Poll> {
-    const participants = await this.deps.rosterProvider.getRosterAsync(contextId)
+  async createPollAsync(context: any, question: Question): Promise<Poll> {
+    const participants = await this.deps.rosterProvider.getRosterAsync(context)
     const poll: Poll = {
       answers: [],
       createdTimestamp: Date.now(),
       id: uuidv4(),
-      contextId: contextId,
       question: question,
       respondentIds: [],
       participants
