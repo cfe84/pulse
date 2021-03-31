@@ -13,6 +13,7 @@ describe("PollService", () => {
   ]
 
   const question: Question = {
+    id: "123",
     possibleAnswers: ["1", "2", "3", "do not know"],
     question: "How much"
   }
@@ -24,7 +25,7 @@ describe("PollService", () => {
     answers: [],
     createdTimestamp: Date.now(),
     id: pollId,
-    question: question,
+    questionId: "123",
     respondentIds: [],
     participants
   })
@@ -37,11 +38,16 @@ describe("PollService", () => {
     return td.object(["savePollAsync", "getPollAsync"])
   }
 
+  function createFakeQuestionStore() {
+    return td.object(["saveQuestionAsync", "getQuestionAsync", "getQuestionsAsync"])
+  }
+
   function createFakeDeps() {
 
     const rosterProvider = createFakeRosterProvider()
     const pollStore = createFakePollStore()
-    return { rosterProvider, pollStore }
+    const questionStore = createFakeQuestionStore()
+    return { rosterProvider, pollStore, questionStore }
   }
 
   context("Create poll", async () => {
@@ -51,7 +57,7 @@ describe("PollService", () => {
     td.when(deps.rosterProvider.getRosterAsync(contextId)).thenResolve(participants)
 
     // when
-    const poll = await pollService.createPollAsync(contextId, question)
+    const poll = await pollService.createPollAsync(contextId, question.id)
 
     // then
     it("saves the date time of poll creation", () => should(poll.createdTimestamp).be.approximately(Date.now(), 200))
@@ -70,6 +76,7 @@ describe("PollService", () => {
     const pollService = new PollService(deps)
     const poll = createFakePoll()
     td.when(deps.pollStore.getPollAsync(pollId)).thenResolve(poll)
+    td.when(deps.questionStore.getQuestionAsync(question.id)).thenResolve(question)
 
     it("rejects incorrect answer", async () => {
       // when

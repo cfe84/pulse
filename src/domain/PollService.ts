@@ -1,9 +1,10 @@
-import { AggregatedAnswers, Answer, IPollStore, IRosterProvider, Poll, Question } from "."
+import { AggregatedAnswers, Answer, IPollStore, IQuestionStore, IRosterProvider, Poll, Question } from "."
 import { v4 as uuidv4 } from "uuid"
 
 export interface PollServiceDependencies {
   rosterProvider: IRosterProvider
   pollStore: IPollStore
+  questionStore: IQuestionStore
 }
 
 export const POLLSERVICE_ERROR = {
@@ -14,13 +15,13 @@ export const POLLSERVICE_ERROR = {
 export class PollService {
   constructor(private deps: PollServiceDependencies) { }
 
-  async createPollAsync(context: any, question: Question): Promise<Poll> {
+  async createPollAsync(context: any, questionId: string): Promise<Poll> {
     const participants = await this.deps.rosterProvider.getRosterAsync(context)
     const poll: Poll = {
       answers: [],
       createdTimestamp: Date.now(),
       id: uuidv4(),
-      question: question,
+      questionId,
       respondentIds: [],
       participants
     }
@@ -30,9 +31,10 @@ export class PollService {
 
   async answerPollAsync(pollId: string, respondentId: string, answer: string): Promise<void> {
     const poll = await this.deps.pollStore.getPollAsync(pollId)
+    const question = await this.deps.questionStore.getQuestionAsync(poll.questionId)
 
     answer = answer.trim()
-    const correspondingPossibleAnswer = poll.question.possibleAnswers.find(
+    const correspondingPossibleAnswer = question.possibleAnswers.find(
       (possibleAnswer) => possibleAnswer.localeCompare(answer, undefined, { sensitivity: 'base' }) === 0)
     if (correspondingPossibleAnswer === undefined) {
       throw Error(POLLSERVICE_ERROR.INVALID_ANSWER)
@@ -53,8 +55,10 @@ export class PollService {
 
   async getAggregatedPollAnswersAsync(pollId: string): Promise<AggregatedAnswers> {
     const poll = await this.deps.pollStore.getPollAsync(pollId)
+    const question = await this.deps.questionStore.getQuestionAsync(poll.questionId)
+
     return {
-      answers: poll.question.possibleAnswers.map(possibleAnswer => ({
+      answers: question.possibleAnswers.map(possibleAnswer => ({
         answer: possibleAnswer,
         count: poll.answers.filter(answer => answer.answer === possibleAnswer).length
       })),

@@ -35,10 +35,10 @@ adapter.onTurnError = async (context, error) => {
 
 const store = new MemoryStore()
 const rosterProvider = new TeamsConversationRosterProvider()
-const pollService = new PollService({ pollStore: store, rosterProvider })
+const pollService = new PollService({ pollStore: store, questionStore: store, rosterProvider })
 
 // Create bot handlers
-const botActivityHandler = new BotActivityHandler({ rosterProvider, pollService });
+const botActivityHandler = new BotActivityHandler({ rosterProvider, pollService, questionStore: store });
 
 // Create HTTP server.
 const server = express();

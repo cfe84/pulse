@@ -4,7 +4,7 @@ export interface Poll {
   id: string
   participants: Participant[]
   respondentIds: string[]
-  question: Question
+  questionId: string
   answers: Answer[]
   createdTimestamp: number
 }
