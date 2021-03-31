@@ -6,53 +6,59 @@ import { TurnContext } from "botbuilder-core";
 import {
     MessageFactory,
     TeamsActivityHandler,
-    CardFactory,
-    ActionTypes
+    CardFactory
 } from 'botbuilder';
 
 export class BotActivityHandler extends TeamsActivityHandler {
     constructor() {
         super();
-        /*  Teams bots are Microsoft Bot Framework bots.
-            If a bot receives a message activity, the turn handler sees that incoming activity
-            and sends it to the onMessage activity handler.
-            Learn more: https://aka.ms/teams-bot-basics.
+        this.onMessage(async (context, next) => await this.handleMessagesAsync(context, next));
+    }
 
-            NOTE:   Ensure the bot endpoint that services incoming conversational bot queries is
-                    registered with Bot Framework.
-                    Learn more: https://aka.ms/teams-register-bot. 
-        */
-        // Registers an activity event handler for the message event, emitted for every incoming message activity.
-        this.onMessage(async (context: TurnContext, next: any) => {
-            TurnContext.removeRecipientMention(context.activity);
-            switch (context.activity.text.trim()) {
-                case 'Hello':
-                    await this.mentionActivityAsync(context);
-                    break;
-                default:
-                    // By default for unknown activity sent by user show
-                    // a card with the available actions.
-                    const value = { count: 0 };
-                    const card = CardFactory.heroCard(
-                        'Lets talk...',
-                        undefined,
-                        [{
-                            type: ActionTypes.MessageBack,
-                            title: 'Say Hello',
-                            value: value,
-                            text: 'Hello'
-                        }]);
-                    await context.sendActivity({ attachments: [card] });
-                    break;
-            }
-            await next();
-        });
+    private async handleMessagesAsync(context: TurnContext, nextAsync: () => Promise<void>) {
+        console.log(context)
+        TurnContext.removeRecipientMention(context.activity);
+        switch ((context.activity.text || context.activity.value["text"]).trim()) {
+            case 'Hello':
+                await this.mentionActivityAsync(context);
+                break;
+            default:
+                // By default for unknown activity sent by user show
+                // a card with the available actions.
+                const card = CardFactory.adaptiveCard({
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.0",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "text": JSON.stringify(context, null, 2),
+                            "wrap": true
+                        },
+                        {
+                            "type": "Input.Text",
+                            "id": "text",
+                            "text": "Default text input"
+                        }
+                    ],
+                    "actions": [
+                        {
+                            "type": "Action.Submit",
+                            "title": "OK"
+                        }
+                    ]
+                });
+
+                await context.sendActivity({ attachments: [card] });
+                break;
+        }
+        await nextAsync();
     }
 
     /**
      * Say hello and @ mention the current user.
      */
-    async mentionActivityAsync(context: TurnContext) {
+    private async mentionActivityAsync(context: TurnContext) {
         const TextEncoder = require('html-entities').XmlEntities;
 
         const mention = {
