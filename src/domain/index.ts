@@ -1,3 +1,5 @@
+import { AggregatedAnswer } from "./AggregatedAnswer";
+import { AggregatedAnswers } from "./AggregatedAnswers";
 import { Answer } from "./Answer";
 import { IPollStore } from "./IPollStore";
 import { IRosterProvider } from "./IRosterProvider";
@@ -15,5 +17,7 @@ export {
   Question,
   Roster,
   IRosterProvider,
-  IPollStore
+  IPollStore,
+  AggregatedAnswer,
+  AggregatedAnswers
 }

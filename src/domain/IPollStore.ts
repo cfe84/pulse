@@ -1,4 +1,4 @@
-import { Poll } from ".";
+import { Answer, Poll } from ".";
 
 export interface IPollStore {
   savePollAsync(poll: Poll): Promise<void>
